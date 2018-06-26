@@ -1,17 +1,15 @@
 package com.codecool.noname.lancomunicator.server;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.TargetDataLine;
-import java.io.DataOutputStream;
+import javax.sound.sampled.*;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 
 public class ServerImpl implements Server {
     private final int port;
-    private ServerSocket serverSocket;
+    private DatagramSocket serverSocket;
     Socket server;
 
     public ServerImpl(int port) {
@@ -19,19 +17,23 @@ public class ServerImpl implements Server {
     }
 
     private static AudioFormat getAudioFormat() {
-        float sampleRate = 16000.0F;
-        int sampleSizeBits = 16;
-        int channels = 1;
-        boolean signed = true;
+
+        AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
+        float rate = 44100.0f;
+        int channels = 2;
+        int sampleSize = 16;
         boolean bigEndian = true;
 
-        return new AudioFormat(sampleRate, sampleSizeBits, channels, signed, bigEndian);
+        return new AudioFormat(encoding, rate, sampleSize, channels, (sampleSize / 8) * channels, rate, bigEndian);
     }
 
     public void startBroadcasting() throws IOException {
-        serverSocket = new ServerSocket(port);
-        new broadcastHandler().runBroadcast();
-
+        serverSocket = new DatagramSocket(port);
+        try {
+            new broadcastHandler().runBroadcast();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -39,22 +41,31 @@ public class ServerImpl implements Server {
         AudioFormat format = ServerImpl.getAudioFormat();
         DataLine.Info micInfo = new DataLine.Info(TargetDataLine.class, format);
         private boolean outVoice = true;
+        InetAddress addr;
+        DatagramPacket dgp;
 
-        public void runBroadcast() {
-            try (TargetDataLine mic = (TargetDataLine) AudioSystem.getLine(micInfo)) {
-                server = serverSocket.accept();
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                mic.open(format);
-                System.out.println("Mic open.");
-                byte tmpBuff[] = new byte[mic.getBufferSize() / 5];
-                mic.start();
-                while (outVoice) {
-                    System.out.println("Reading from mic.");
-                    int count = mic.read(tmpBuff, 0, tmpBuff.length);
-                    if (count > 0) {
-                        System.out.println("Writing buffer to server.");
-                        out.write(tmpBuff, 0, count);
-                    }
+        public void runBroadcast() throws LineUnavailableException {
+            TargetDataLine line;
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+            line = (TargetDataLine) AudioSystem.getLine(info);
+            try {
+                line = (TargetDataLine) AudioSystem.getLine(info);
+                int buffsize = 1024;
+                line.open(format);
+                line.start();
+
+                int numBytesRead;
+                byte[] data = new byte[buffsize];
+
+                addr = InetAddress.getByName("192.168.11.120");
+                DatagramSocket socket = new DatagramSocket();
+                while (true) {
+                    // Read the next chunk of data from the TargetDataLine.
+                    numBytesRead = line.read(data, 0, data.length);
+                    // Save this chunk of data.
+                    dgp = new DatagramPacket(data, data.length, addr, 9000);
+
+                    socket.send(dgp);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
