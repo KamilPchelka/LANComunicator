@@ -11,7 +11,7 @@ public class App {
 
             if (mode.equalsIgnoreCase("server")) {
                 int port = Integer.valueOf(args[2]);
-                new Server(port).startBroadcasting();
+                new ServerImpl(port).startBroadcasting();
             } else if (mode.equalsIgnoreCase("client")) {
                 String hostname = args[2];
                 int port = Integer.valueOf(args[3]);
