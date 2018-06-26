@@ -50,20 +50,20 @@ public class ServerImpl implements Server {
             line = (TargetDataLine) AudioSystem.getLine(info);
             try {
                 line = (TargetDataLine) AudioSystem.getLine(info);
-                int buffsize = 1024;
+                int buffsize = 12000;
                 line.open(format);
                 line.start();
 
                 int numBytesRead;
                 byte[] data = new byte[buffsize];
 
-                addr = InetAddress.getByName("192.168.11.120");
+                addr = InetAddress.getByName("localhost");
                 DatagramSocket socket = new DatagramSocket();
                 while (true) {
                     // Read the next chunk of data from the TargetDataLine.
                     numBytesRead = line.read(data, 0, data.length);
                     // Save this chunk of data.
-                    dgp = new DatagramPacket(data, data.length, addr, 9000);
+                    dgp = new DatagramPacket(data, data.length, addr, 9001);
 
                     socket.send(dgp);
                 }

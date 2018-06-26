@@ -36,7 +36,7 @@ public class ClientImpl implements Client {
         speaker.start();
 
         while (listening) {
-            byte[] data = new byte[1024];
+            byte[] data = new byte[12000];
             DatagramPacket receivePacket = new DatagramPacket(data, data.length);
             socket.receive(receivePacket);
             try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
