@@ -1,9 +1,14 @@
 package com.codecool.noname.lancomunicator;
 
+import com.codecool.noname.lancomunicator.client.ClientImpl;
+
+import javax.sound.sampled.LineUnavailableException;
+import java.io.IOException;
+
 public class App {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, LineUnavailableException {
 
 
         try {
