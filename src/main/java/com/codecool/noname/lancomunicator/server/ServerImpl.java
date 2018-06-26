@@ -16,15 +16,15 @@ public class ServerImpl implements Server {
         this.port = port;
     }
 
-    private static AudioFormat getAudioFormat() {
 
-        AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
-        float rate = 44100.0f;
-        int channels = 2;
-        int sampleSize = 16;
+    public static AudioFormat getAudioFormat() {
+        float sampleRate = 16000.0F;
+        int sampleSizeBits = 16;
+        int channels = 1;
+        boolean signed = true;
         boolean bigEndian = true;
 
-        return new AudioFormat(encoding, rate, sampleSize, channels, (sampleSize / 8) * channels, rate, bigEndian);
+        return new AudioFormat(sampleRate, sampleSizeBits, channels, signed, bigEndian);
     }
 
     public void startBroadcasting() throws IOException {
