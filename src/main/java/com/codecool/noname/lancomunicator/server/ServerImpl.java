@@ -18,7 +18,7 @@ public class ServerImpl implements Server {
 
 
     public static AudioFormat getAudioFormat() {
-        float sampleRate = 16000.0F;
+        float sampleRate = 16000;
         int sampleSizeBits = 16;
         int channels = 1;
         boolean signed = true;
@@ -48,18 +48,19 @@ public class ServerImpl implements Server {
             TargetDataLine line;
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
             line = (TargetDataLine) AudioSystem.getLine(info);
+            line.drain();
             try {
                 line = (TargetDataLine) AudioSystem.getLine(info);
-                int buffsize = 12000;
                 line.open(format);
                 line.start();
 
                 int numBytesRead;
-                byte[] data = new byte[buffsize];
+                byte[] data = new byte[1280];
 
                 addr = InetAddress.getByName("localhost");
                 DatagramSocket socket = new DatagramSocket();
                 while (true) {
+                    System.out.println("xd");
                     // Read the next chunk of data from the TargetDataLine.
                     numBytesRead = line.read(data, 0, data.length);
                     // Save this chunk of data.
@@ -72,5 +73,6 @@ public class ServerImpl implements Server {
             }
         }
     }
+
 
 }

@@ -13,39 +13,56 @@ public class ClientImpl implements Client {
 
 
     private final AudioFormat format;
-    private final SourceDataLine speaker;
     private final InetAddress inetAddress;
-    DatagramSocket socket;
+    private DatagramSocket socket;
     private boolean listening = true;
 
 
-    public ClientImpl(String hostname, int port) throws IOException, LineUnavailableException {
+    public ClientImpl(String hostname, int port) throws IOException {
         this.socket = new DatagramSocket(port);
         this.inetAddress = InetAddress.getByName(hostname);
         this.format = ServerImpl.getAudioFormat();
-        DataLine.Info speakerInfo = new DataLine.Info(SourceDataLine.class, format);
-        this.speaker = (SourceDataLine) AudioSystem.getLine(speakerInfo);
 
 
     }
 
     @Override
-    public void startListening() throws LineUnavailableException, IOException {
+    public void startListening() throws IOException {
 
-        speaker.open(format);
-        speaker.start();
+
+        byte[] data = new byte[1280];
 
         while (listening) {
-            byte[] data = new byte[12000];
             DatagramPacket receivePacket = new DatagramPacket(data, data.length);
             socket.receive(receivePacket);
             try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
                  AudioInputStream ais = new AudioInputStream(bais, format, data.length)) {
                 int bytesRead = 0;
                 if ((bytesRead = ais.read(data)) != -1) {
-                    speaker.write(data, 0, bytesRead);
+                    new Thread(() -> toSpeaker(data)).start();
                 }
             }
+        }
+    }
+
+    public void toSpeaker(byte soundbytes[]) {
+        try {
+
+            DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, format);
+            SourceDataLine sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
+
+            sourceDataLine.open(format);
+
+            sourceDataLine.start();
+
+            System.out.println("format? :" + sourceDataLine.getFormat());
+
+            sourceDataLine.write(soundbytes, 0, soundbytes.length);
+            sourceDataLine.drain();
+            sourceDataLine.close();
+        } catch (Exception e) {
+            System.out.println("Not working in speakers...");
+            e.printStackTrace();
         }
     }
 
