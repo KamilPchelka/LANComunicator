@@ -1,6 +1,7 @@
 package com.codecool.noname.lancomunicator;
 
 import com.codecool.noname.lancomunicator.client.ClientImpl;
+import com.codecool.noname.lancomunicator.server.ServerImpl;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
