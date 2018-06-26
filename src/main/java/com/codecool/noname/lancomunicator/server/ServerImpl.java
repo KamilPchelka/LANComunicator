@@ -18,7 +18,7 @@ public class ServerImpl implements Server {
         this.port = port;
     }
 
-    private static AudioFormat getAudioFormat() {
+    public static AudioFormat getAudioFormat() {
         float sampleRate = 16000.0F;
         int sampleSizeBits = 16;
         int channels = 1;
