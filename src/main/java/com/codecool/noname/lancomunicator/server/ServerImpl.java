@@ -5,6 +5,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -26,6 +27,13 @@ public class ServerImpl implements Server {
 
         return new AudioFormat(sampleRate, sampleSizeBits, channels, signed, bigEndian);
     }
+
+    public void startBroadcasting() throws IOException {
+        serverSocket = new ServerSocket(port);
+        new broadcastHandler().runBroadcast();
+
+    }
+
 
     private class broadcastHandler {
         AudioFormat format = ServerImpl.getAudioFormat();
