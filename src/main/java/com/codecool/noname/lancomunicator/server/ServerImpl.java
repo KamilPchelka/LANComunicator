@@ -1,78 +1,79 @@
 package com.codecool.noname.lancomunicator.server;
 
-import javax.sound.sampled.*;
+import com.codecool.noname.lancomunicator.utils.ClientFinder;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.TargetDataLine;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ServerImpl implements Server {
-    private final int port;
-    private DatagramSocket serverSocket;
-    Socket server;
+    private final DatagramSocket serverSocket;
+    private final List<InetAddress> clients = new CopyOnWriteArrayList<>();
 
-    public ServerImpl(int port) {
-        this.port = port;
+    public ServerImpl(int port) throws SocketException {
+        this.serverSocket = new DatagramSocket(port);
+        clientListUpdater();
     }
 
 
     public static AudioFormat getAudioFormat() {
-        float sampleRate = 8000;
-        int sampleSizeBits = 16;
-        int channels = 1;
-        boolean signed = true;
-        boolean bigEndian = true;
 
-        return new AudioFormat(sampleRate, sampleSizeBits, channels, signed, bigEndian);
+        return new AudioFormat(8000, 16, 1, true, true);
     }
 
-    public void startBroadcasting() throws IOException {
-        serverSocket = new DatagramSocket(port);
-        try {
+    public void startBroadcasting() {
             new broadcastHandler().runBroadcast();
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
     }
 
+    public void clientListUpdater() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    clients.clear();
+                    clients.addAll(ClientFinder.getAllAdressOverLocalNetwork());
+                    Thread.sleep(5000);
+                } catch (InterruptedException | UnknownHostException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     private class broadcastHandler {
         AudioFormat format = ServerImpl.getAudioFormat();
-        DataLine.Info micInfo = new DataLine.Info(TargetDataLine.class, format);
-        private boolean outVoice = true;
-        InetAddress addr;
-        DatagramPacket dgp;
 
-        public void runBroadcast() throws LineUnavailableException {
-            TargetDataLine line;
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-            line = (TargetDataLine) AudioSystem.getLine(info);
-            line.drain();
+        public void runBroadcast() {
             try {
-                line = (TargetDataLine) AudioSystem.getLine(info);
+
+                DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+                TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
                 line.open(format);
                 line.start();
 
-                int numBytesRead;
-                byte[] data = new byte[4096];
-
-                addr = InetAddress.getByName("localhost");
-                DatagramSocket socket = new DatagramSocket();
+                final byte[] data = new byte[4096];
                 while (true) {
-                    System.out.println("xd");
-                    // Read the next chunk of data from the TargetDataLine.
-                    numBytesRead = line.read(data, 0, data.length);
-                    // Save this chunk of data.
-                    dgp = new DatagramPacket(data, data.length, addr, 9001);
+                    line.read(data, 0, data.length);
+                    System.out.println(clients);
+                    clients.forEach(address -> {
+                        try {
+                            serverSocket.send(new DatagramPacket(data, data.length, address, 9001));
 
-                    socket.send(dgp);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
 
 }
