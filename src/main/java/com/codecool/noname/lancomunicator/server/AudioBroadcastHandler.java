@@ -1,5 +1,7 @@
 package com.codecool.noname.lancomunicator.server;
 
+import com.codecool.noname.lancomunicator.client.AudioPlayerImpl;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -10,8 +12,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.List;
 
-public class AudioBroadcastHandler {
-    private final AudioFormat format = ServerImpl.getAudioFormat();
+public class AudioBroadcastHandler implements Broadcaster {
+    private final AudioFormat format = AudioPlayerImpl.getAudioFormat();
     private final DatagramSocket audioServerSocket;
     private final List<InetAddress> clients;
 
