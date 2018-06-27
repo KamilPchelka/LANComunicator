@@ -6,20 +6,20 @@ import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 public class ClientImpl implements Client {
 
 
     private final AudioFormat format;
     private final InetAddress inetAddress;
-    private DatagramSocket socket;
+    private MulticastSocket socket;
     private boolean listening = true;
 
 
     public ClientImpl(String hostname, int port) throws IOException {
-        this.socket = new DatagramSocket(port);
+        this.socket = new MulticastSocket(port);
         this.inetAddress = InetAddress.getByName(hostname);
         this.format = ServerImpl.getAudioFormat();
 
