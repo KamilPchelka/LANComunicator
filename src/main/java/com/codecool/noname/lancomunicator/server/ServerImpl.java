@@ -18,7 +18,7 @@ public class ServerImpl implements Server {
 
 
     public static AudioFormat getAudioFormat() {
-        float sampleRate = 16000;
+        float sampleRate = 8000;
         int sampleSizeBits = 16;
         int channels = 1;
         boolean signed = true;
@@ -55,7 +55,7 @@ public class ServerImpl implements Server {
                 line.start();
 
                 int numBytesRead;
-                byte[] data = new byte[1280];
+                byte[] data = new byte[4096];
 
                 addr = InetAddress.getByName("localhost");
                 DatagramSocket socket = new DatagramSocket();

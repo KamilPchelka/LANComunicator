@@ -30,7 +30,7 @@ public class ClientImpl implements Client {
     public void startListening() throws IOException {
 
 
-        byte[] data = new byte[1280];
+        byte[] data = new byte[4096];
 
         while (listening) {
             DatagramPacket receivePacket = new DatagramPacket(data, data.length);
