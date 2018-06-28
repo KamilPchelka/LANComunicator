@@ -2,7 +2,6 @@ package com.codecool.noname.lancomunicator.server;
 
 import com.codecool.noname.lancomunicator.utils.ClientFinder;
 
-import javax.sound.sampled.AudioFormat;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -14,19 +13,15 @@ public class ServerImpl implements Server {
     private final DatagramSocket audioServerSocket;
     private final List<InetAddress> clients = new CopyOnWriteArrayList<>();
 
-    public ServerImpl(int port) throws SocketException {
-        this.audioServerSocket = new DatagramSocket(port);
-        clientListUpdater();
+    public ServerImpl() throws SocketException, UnknownHostException {
+        this.audioServerSocket = new DatagramSocket(0);
+        clients.addAll(ClientFinder.getAllAdressOverLocalNetwork());
     }
 
 
-    public static AudioFormat getAudioFormat() {
-
-        return new AudioFormat(8000, 16, 1, true, true);
-    }
-
-    public void startBroadcasting() {
+    public void startBroadcasting() throws SocketException {
         new AudioBroadcastHandler(audioServerSocket, clients).runBroadcast();
+        new VideoBroadcastHandler(clients).runBroadcast();
     }
 
     public void clientListUpdater() {
