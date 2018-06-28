@@ -23,7 +23,7 @@ public class ClientGUI extends Application {
     private ObjectProperty<Image> imageProperty = new SimpleObjectProperty<>();
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
         Pane pane = new Pane();
         imageView = new ImageView();
         pane.getChildren().add(imageView);
@@ -43,8 +43,6 @@ public class ClientGUI extends Application {
         primaryStage.setWidth(600);
         primaryStage.show();
 
-        imageView.imageProperty().bind(imageProperty);
-
         startWebCamStream();
     }
 
@@ -62,8 +60,7 @@ public class ClientGUI extends Application {
                     multicastSocket.receive(dp);
                     InputStream in = new ByteArrayInputStream(buffer);
                     BufferedImage bufferedImage = ImageIO.read(in);
-                    imageProperty.set(SwingFXUtils.toFXImage(bufferedImage, null));
-                    bufferedImage.flush();
+                    imageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
