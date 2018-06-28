@@ -43,6 +43,8 @@ public class ClientGUI extends Application {
         primaryStage.setWidth(600);
         primaryStage.show();
 
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
+
         startWebCamStream();
     }
 
