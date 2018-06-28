@@ -1,14 +1,14 @@
 package com.codecool.noname.lancomunicator;
 
 import com.codecool.noname.lancomunicator.client.ClientImpl;
+import com.codecool.noname.lancomunicator.gui.ClientGUI;
 import com.codecool.noname.lancomunicator.server.ServerImpl;
-
-import java.io.IOException;
+import javafx.application.Application;
 
 public class App {
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 
 
         try {
@@ -19,6 +19,7 @@ public class App {
             } else if (mode.equalsIgnoreCase("client")) {
                 int port = Integer.valueOf(args[1]);
                 new ClientImpl(port).startListening();
+                Application.launch(ClientGUI.class);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             System.err.println("Please provide correct arguments !");
