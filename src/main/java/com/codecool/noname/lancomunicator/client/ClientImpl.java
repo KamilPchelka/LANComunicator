@@ -5,6 +5,7 @@ import javax.sound.sampled.AudioInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.Socket;
@@ -19,11 +20,9 @@ public class ClientImpl implements Client {
     private boolean listening = true;
 
 
-    public ClientImpl(String hostname) throws IOException {
+    public ClientImpl(String hostname) throws IOException, InterruptedException {
         this.socket = new MulticastSocket(9001);
-        socketTCP = new Socket(hostname, 9003);
-        DataOutputStream out = new DataOutputStream(socketTCP.getOutputStream());
-        out.write(13);
+        connectToServer(hostname);
     }
 
     @Override
@@ -51,5 +50,20 @@ public class ClientImpl implements Client {
         }).start();
     }
 
-
+    public void connectToServer(String hostname) throws IOException, InterruptedException {
+        boolean connected = false;
+        int tries = 0;
+        while (!connected) {
+            try {
+                tries++;
+                socketTCP = new Socket(hostname, 9003);
+                DataOutputStream out = new DataOutputStream(socketTCP.getOutputStream());
+                out.write(1);
+                connected = true;
+            } catch (ConnectException e) {
+                System.err.println("(" + tries + ") Please run the server, next try within 2 seconds");
+                Thread.sleep(2000);
+            }
+        }
+    }
 }
