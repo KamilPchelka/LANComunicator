@@ -51,7 +51,7 @@ public class ClientGUI extends Application {
 
         new Thread(() -> {
             try {
-                byte[] buffer = new byte[50000];
+                byte[] buffer = new byte[60000];
                 MulticastSocket multicastSocket = new MulticastSocket(9002);
                 DatagramPacket dp;
 
