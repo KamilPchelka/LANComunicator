@@ -16,8 +16,8 @@ public class ClientImpl implements Client {
     private boolean listening = true;
 
 
-    public ClientImpl(int port) throws IOException {
-        this.socket = new MulticastSocket(port);
+    public ClientImpl() throws IOException {
+        this.socket = new MulticastSocket(9001);
 
 
     }

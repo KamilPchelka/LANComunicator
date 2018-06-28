@@ -17,8 +17,7 @@ public class App {
             if (mode.equalsIgnoreCase("server")) {
                 new ServerImpl().startBroadcasting();
             } else if (mode.equalsIgnoreCase("client")) {
-                int port = Integer.valueOf(args[1]);
-                new ClientImpl(port).startListening();
+                new ClientImpl().startListening();
                 Application.launch(ClientGUI.class);
             }
         } catch (ArrayIndexOutOfBoundsException e) {

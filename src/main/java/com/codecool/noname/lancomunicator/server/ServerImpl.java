@@ -20,6 +20,10 @@ public class ServerImpl implements Server {
         new VideoBroadcastHandler(clients).runBroadcast();
     }
 
+    private class ConnectionRequestHanlder {
+
+    }
+
 
 
 
