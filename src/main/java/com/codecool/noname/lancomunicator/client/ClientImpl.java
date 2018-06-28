@@ -23,22 +23,28 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void startListening() throws IOException {
+    public void startListening() {
 
 
-        byte[] data = new byte[4096];
+        new Thread(() -> {
+            byte[] data = new byte[4096];
 
-        while (listening) {
-            DatagramPacket receivePacket = new DatagramPacket(data, data.length);
-            socket.receive(receivePacket);
-            try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                 AudioInputStream ais = new AudioInputStream(bais, format, data.length)) {
-                int bytesRead = ais.read(data);
-                if (bytesRead != -1) {
-                    new Thread(() -> audioPlayer.play(data)).start();
+            while (listening) {
+                DatagramPacket receivePacket = new DatagramPacket(data, data.length);
+                try {
+                    socket.receive(receivePacket);
+                    try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                         AudioInputStream ais = new AudioInputStream(bais, format, data.length)) {
+                        int bytesRead = ais.read(data);
+                        if (bytesRead != -1) {
+                            new Thread(() -> audioPlayer.play(data)).start();
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        }
+        }).start();
     }
 
 
