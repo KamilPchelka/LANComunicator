@@ -26,7 +26,7 @@ public class ServerImpl implements Server {
 
 
         public void startListening() throws IOException {
-            try (ServerSocket serverSocket = new ServerSocket(9004)) {
+            try (ServerSocket serverSocket = new ServerSocket(9003)) {
 
                 while (true) {
                     handleRequest(serverSocket.accept());
