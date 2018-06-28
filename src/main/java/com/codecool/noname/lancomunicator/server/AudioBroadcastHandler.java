@@ -24,29 +24,31 @@ public class AudioBroadcastHandler implements Broadcaster {
 
 
     public void runBroadcast() {
-        try {
+        new Thread(() -> {
+            try {
 
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-            TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
-            line.open(format);
-            line.start();
+                DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+                TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
+                line.open(format);
+                line.start();
 
-            final byte[] data = new byte[4096];
-            while (true) {
-                line.read(data, 0, data.length);
-                clients.forEach(address -> {
-                    try {
-                        audioServerSocket.send(new DatagramPacket(data, data.length, address, 9001));
+                final byte[] data = new byte[4096];
+                while (true) {
+                    line.read(data, 0, data.length);
+                    clients.forEach(address -> {
+                        try {
+                            audioServerSocket.send(new DatagramPacket(data, data.length, address, 9001));
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                });
+                    });
 
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 }
