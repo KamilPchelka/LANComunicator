@@ -13,14 +13,15 @@ public class ServerImpl implements Server {
     private final DatagramSocket audioServerSocket;
     private final List<InetAddress> clients = new CopyOnWriteArrayList<>();
 
-    public ServerImpl() throws SocketException {
+    public ServerImpl() throws SocketException, UnknownHostException {
         this.audioServerSocket = new DatagramSocket(0);
-        clientListUpdater();
+        clients.addAll(ClientFinder.getAllAdressOverLocalNetwork());
     }
 
 
-    public void startBroadcasting() {
+    public void startBroadcasting() throws SocketException {
         new AudioBroadcastHandler(audioServerSocket, clients).runBroadcast();
+        new VideoBroadcastHandler(clients).runBroadcast();
     }
 
     public void clientListUpdater() {
